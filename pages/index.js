@@ -1,6 +1,7 @@
+import { useEffect, useContext } from "react";
 import { Web3Context } from "../context/Web3Context";
 import Header from "../components/Header";
-import { useEffect, useContext } from "react";
+import ReleaseGold from "../components/ReleaseGold";
 
 export const Home = () => {
   const { state, dispatch, connect, disconnect } = useContext(Web3Context);
@@ -58,6 +59,7 @@ export const Home = () => {
     <div className="container">
       <main>
         <Header />
+        <ReleaseGold />
       </main>
     </div>
   );
