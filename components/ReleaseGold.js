@@ -12,25 +12,27 @@ const ReleaseGold = () => {
   const { state } = useContext(Web3Context);
   const { web3Provider, address } = state;
 
-  useEffect(async () => {
-    if (web3Provider) {
-      const contractInstance = new ethers.Contract(
-        artifact.address,
-        artifact.abi,
-        web3Provider
-      );
-
-      setBeneficiary(await contractInstance.beneficiary());
-      setRemainingTotalBalance(
-        utils.formatEther(await contractInstance.getRemainingTotalBalance())
-      );
-      setClaimableAmount(
-        utils.formatEther(
-          await contractInstance.getCurrentReleasedTotalAmount()
-        )
-      );
-      setReleaseGold(contractInstance);
-    }
+  useEffect(() => {
+    (async () => {
+      if (web3Provider) {
+        const contractInstance = new ethers.Contract(
+          artifact.address,
+          artifact.abi,
+          web3Provider
+        );
+  
+        setBeneficiary(await contractInstance.beneficiary());
+        setRemainingTotalBalance(
+          utils.formatEther(await contractInstance.getRemainingTotalBalance())
+        );
+        setClaimableAmount(
+          utils.formatEther(
+            await contractInstance.getCurrentReleasedTotalAmount()
+          )
+        );
+        setReleaseGold(contractInstance);
+      }
+    })();
   }, [web3Provider]);
 
   const handleClaim = async () => {

@@ -22,8 +22,8 @@
     "ethers": "^5.5.1",
     "lit-js-sdk": "^1.1.182",
     "next": "latest",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18",
+    "react-dom": "^18",
     "web3modal": "^1.9.4"
   },
   "devDependencies": {
