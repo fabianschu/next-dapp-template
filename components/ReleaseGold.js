@@ -6,8 +6,11 @@ import { Web3Context } from "../context/Web3Context";
 const ReleaseGold = () => {
   const [beneficiary, setBeneficiary] = useState("");
   const [releaseGold, setReleaseGold] = useState();
+  const [maxDistribution, setMaxDistribution] = useState();
+  const [totalWithdrawn, setTotalWithdrawn] = useState();
   const [remainingTotalBalance, setRemainingTotalBalance] = useState(0);
-  const [claimableAmount, setClaimableAmount] = useState(0);
+  const [currentReleasedAmount, setCurrentReleasedAmount] = useState(0);
+  const [txHash, setTxHash] = useState("");
 
   const { state } = useContext(Web3Context);
   const { web3Provider, address } = state;
@@ -20,12 +23,18 @@ const ReleaseGold = () => {
           artifact.abi,
           web3Provider
         );
-  
+
         setBeneficiary(await contractInstance.beneficiary());
+        setMaxDistribution(
+          utils.formatEther(await contractInstance.maxDistribution())
+        );
+        setTotalWithdrawn(
+          utils.formatEther(await contractInstance.totalWithdrawn())
+        );
         setRemainingTotalBalance(
           utils.formatEther(await contractInstance.getRemainingTotalBalance())
         );
-        setClaimableAmount(
+        setCurrentReleasedAmount(
           utils.formatEther(
             await contractInstance.getCurrentReleasedTotalAmount()
           )
@@ -37,9 +46,12 @@ const ReleaseGold = () => {
 
   const handleClaim = async () => {
     const signer = await web3Provider.getSigner(address);
-    const amount = await releaseGold.getCurrentReleasedTotalAmount();
-    const withdrawalTx = await releaseGold.connect(signer).withdraw(amount);
-    console.log(withdrawalTx);
+    const total = await releaseGold.getCurrentReleasedTotalAmount();
+    const withdrawn = await releaseGold.totalWithdrawn();
+    const withdrawalTx = await releaseGold
+      .connect(signer)
+      .withdraw(total.sub(withdrawn));
+    setTxHash(withdrawalTx.txHash);
   };
 
   if (!releaseGold) {
@@ -57,15 +69,21 @@ const ReleaseGold = () => {
       </div>
       <div>
         <span>
-          <strong>Remaining Total Balance: </strong>
+          <strong>Remaining allocation (vested & unvested): </strong>
         </span>
         <span>{remainingTotalBalance}</span>
       </div>
       <div>
         <span>
-          <strong>Claimable Amount: </strong>
+          <strong>totalWithdrawn: </strong>
         </span>
-        <span>{claimableAmount}</span>
+        <span>{totalWithdrawn}</span>
+      </div>
+      <div>
+        <span>
+          <strong>claimable amount: </strong>
+        </span>
+        <span>{currentReleasedAmount - totalWithdrawn}</span>
       </div>
       <div>
         <br />
@@ -73,6 +91,7 @@ const ReleaseGold = () => {
           Claim
         </button>
       </div>
+      {txHash && <div>{txHash}</div>}
     </div>
   );
 };
