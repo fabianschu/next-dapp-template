@@ -10,7 +10,7 @@ const ReleaseGold = () => {
   const [totalWithdrawn, setTotalWithdrawn] = useState();
   const [remainingTotalBalance, setRemainingTotalBalance] = useState(0);
   const [currentReleasedAmount, setCurrentReleasedAmount] = useState(0);
-  const [txHash, setTxHash] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   const { state } = useContext(Web3Context);
   const { web3Provider, address } = state;
@@ -48,10 +48,14 @@ const ReleaseGold = () => {
     const signer = await web3Provider.getSigner(address);
     const total = await releaseGold.getCurrentReleasedTotalAmount();
     const withdrawn = await releaseGold.totalWithdrawn();
-    const withdrawalTx = await releaseGold
-      .connect(signer)
-      .withdraw(total.sub(withdrawn));
-    setTxHash(withdrawalTx.txHash);
+    try {
+      const withdrawalTx = await releaseGold
+        .connect(signer)
+        .withdraw(total.sub(withdrawn));
+      setFeedback("TX HASH: ", withdrawalTx.txHash);
+    } catch (e) {
+      setFeedback("ERROR: " + e.message);
+    }
   };
 
   if (!releaseGold) {
@@ -91,7 +95,7 @@ const ReleaseGold = () => {
           Claim
         </button>
       </div>
-      {txHash && <div>{txHash}</div>}
+      {feedback && <div>{feedback}</div>}
     </div>
   );
 };
